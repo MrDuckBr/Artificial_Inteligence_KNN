@@ -37,3 +37,7 @@ def createTestList(data, randomValue=0.3):
     # print(data)
     # criando uma lista com apenas a porcentagem da nova lista
    # newData = deepcopy(newData[:int(len(newData)*randomValue)])
+
+
+base
+# https://github.com/thiagopnobre/knn/blob/8cef99bdb227cfddb688df01d2cba1dc0480cd01/K-NN.py#L17
