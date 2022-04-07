@@ -2,7 +2,7 @@ class Knn:
     def __init__(self, values, category):
         self.values = values
         self.category = category
-        self.neighborhood = []
+        self.neighbors = []
 
-    def _neighborhood(self, values):
-        self.neighborhood.append(values)
+    def setNeighbors(self, listOfValues):
+        self.neighbors = listOfValues

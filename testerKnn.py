@@ -1,8 +1,10 @@
 # base
 # https://github.com/thiagopnobre/knn/blob/8cef99bdb227cfddb688df01d2cba1dc0480cd01/K-NN.py#L17
+from calendar import calendar
 from cgi import test
 from copy import deepcopy
 from ctypes import sizeof
+from errno import ENAMETOOLONG
 from hashlib import new
 from math import dist
 from random import Random, random, shuffle
@@ -33,42 +35,36 @@ def readDocument(filepath):
     return(datasWithoutLastValor)
 
 
-def init(filepath, k):
-    datas = readDocument(filepath=filepath)
-    # Retorna a lista de teste e a lista de treino, que são KNN's
-    testList, trainingList = createTestList(datas)
-    findMinusDistance(dataTest=testList, dataTraining=trainingList, k=k)
-# Precisa ver uma forma de randomizar essa lista aqui para ter o teste
-
-
 def createTestList(data, randomValue=0.3):
     # Shuffle na lista
-    testValues = []
     trainingValues = []
+    testValues = []
 
     for knnElements in data:
         if random() < randomValue:
-            testValues.append(knnElements)
-        else:
             trainingValues.append(knnElements)
+        else:
+            testValues.append(knnElements)
 
     return (testValues, trainingValues)
 
-    # Aqui vou conferir todas as distancias para todos e adicionar ao TestData.py
-    # # apos isso fazer a verificação dos mais proximos, junto ao K fornecido pelo professor
 
-
-# data training = 80% dos dados
-def findMinusDistance(dataTest, dataTraining, k):
+def findMinusDistance(training, test):
     listofMinusDistance = []
-   # print('findMinusDistance \n')
-    for lineTest in dataTest:
 
-        perLineSum = sumLine(lineTest.values)
-        listofMinusDistance.append(findMinusDistancePerLine(
-            line=perLineSum, dataTraining=dataTraining, k=k))
+    for lineTest in test:
+        # Calculcar aqui nesse ponto os vizinhos e a distancia, como manter o indice ?
+        lineTest.setNeighborsDistance()  # aqui coloca a lista da distancia
+        # aqui coloca a lista que foi utilizada
+        lineTest.setNeighbors(training)
+        # To perdido aqui vei, que bosta
+
+        listofMinusDistance.append(list(findMinusDistancePerLine(
+            line=perLineSum, dataTraining=dataTraining)))
+
     print(listofMinusDistance)
-    return 0
+
+    return listofMinusDistance
 
 
 def sumLine(line):
@@ -78,7 +74,7 @@ def sumLine(line):
     return amount
 
 
-def findMinusDistancePerLine(line, dataTraining, k):
+def findMinusDistancePerLine(line, dataTraining):
     _distanceSum = []
    # print('findMinusDistancePerLine \n')
     for lineTraining in dataTraining:
@@ -94,5 +90,14 @@ def euclidianDistance(lineTest, lineTraining):
    # print('euclidianDistance \n')
     amountTrainingData = sumLine(line=lineTraining.values)
     _distance = (lineTest-amountTrainingData)**2
-    print('distance ', _distance)
+   # print('distance ', _distance)
     return (_distance**0.5)
+
+
+def init(filepath, k):
+    datas = readDocument(filepath=filepath)
+    # Retorna a lista de teste e a lista de treino, que são KNN's
+    testList, trainingList = createTestList(datas)
+    searchDistance = findMinusDistance(training=trainingList, test=testList)
+    distanceValues = findMinusDistance(
+        dataTest=testList, dataTraining=trainingList)
