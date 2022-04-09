@@ -7,16 +7,30 @@ from ctypes import sizeof
 from errno import ENAMETOOLONG
 from hashlib import new
 from math import dist
+from multiprocessing.sharedctypes import Value
+from optparse import Values
 from random import Random, random, shuffle
 from turtle import distance
 from unicodedata import category
 import pandas as pd
 import csv
-from knn import Knn
+from knn import DistanceKNN, Knn
 
 
 # Global values
 categoryCount = []
+
+
+def init(filepath, k):
+    datas = readDocument(filepath=filepath)
+    # Retorna a lista de teste e a lista de treino, que são KNN's
+    # a menor quantidade esta na training values
+    testList, trainingList = createTestList(datas)
+
+   # aqui temos uma lista de KNN distance
+    distanceTeste = findMinusDistance(training=trainingList, test=testList)
+    distanceSorted(distanceTeste)
+    # Depois de ordenar so falta comparar com as distancias e ver o K pra ver se é o mesmo
 
 
 def readDocument(filepath):
@@ -50,54 +64,46 @@ def createTestList(data, randomValue=0.3):
 
 
 def findMinusDistance(training, test):
-    listofMinusDistance = []
+    listofDistanceKNN = []
 
-    for lineTest in test:
-        # Calculcar aqui nesse ponto os vizinhos e a distancia, como manter o indice ?
-        lineTest.setNeighborsDistance()  # aqui coloca a lista da distancia
-        # aqui coloca a lista que foi utilizada
-        lineTest.setNeighbors(training)
-        # To perdido aqui vei, que bosta
+    for lineTest in test:  # aqui eu tenho cada linha do teste
+        # Nesse ponto eu tenho cada teste
+        # e preciso que ele saiba a distancia de todos os treinos
+        # Como armazenar ???????????
+        euclidianList = findMinusDistancePerLine(
+            line=lineTest, dataTraining=training)
+        listofDistanceKNN.append(DistanceKNN(
+            element=lineTest, trainingList=training, distanceList=euclidianList))
 
-        listofMinusDistance.append(list(findMinusDistancePerLine(
-            line=perLineSum, dataTraining=dataTraining)))
+   # print(listofMinusDistance)
 
-    print(listofMinusDistance)
-
-    return listofMinusDistance
-
-
-def sumLine(line):
-    amount = 0
-    for l in line:
-        amount += l
-    return amount
+    return listofDistanceKNN
 
 
 def findMinusDistancePerLine(line, dataTraining):
-    _distanceSum = []
+    array = []
    # print('findMinusDistancePerLine \n')
     for lineTraining in dataTraining:
-        _distanceSum.append(euclidianDistance(
+        array.append(euclidianDistance(
             lineTest=line, lineTraining=lineTraining))
-
-
-# Nesse ponto retorna uma lista, correto?
-    return _distanceSum
+    return array
 
 
 def euclidianDistance(lineTest, lineTraining):
    # print('euclidianDistance \n')
-    amountTrainingData = sumLine(line=lineTraining.values)
-    _distance = (lineTest-amountTrainingData)**2
+
+    _distance = ((lineTraining.values[0]-lineTest.values[0])
+                 ** 2) + ((lineTraining.values[2]-lineTest.values[2])**2)
    # print('distance ', _distance)
     return (_distance**0.5)
 
+# Falta essa porra aqui
 
-def init(filepath, k):
-    datas = readDocument(filepath=filepath)
-    # Retorna a lista de teste e a lista de treino, que são KNN's
-    testList, trainingList = createTestList(datas)
-    searchDistance = findMinusDistance(training=trainingList, test=testList)
-    distanceValues = findMinusDistance(
-        dataTest=testList, dataTraining=trainingList)
+
+def distanceSorted(distanceTest):
+    for line in distanceTest:
+        print(line.trainingList)
+      #  distanceList, trainingList = (list(t) for t in zip(
+       #     *sorted(zip(line.distanceList, line.trainingList))))
+
+    # return distanceList, trainingList
